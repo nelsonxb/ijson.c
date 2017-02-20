@@ -61,11 +61,16 @@ void IJSON_(_stream_init)(struct IJSON_(_stream) *stream, size_t node_length);
 struct IJSON_(_stream) *IJSON_(_stream_new)(size_t node_length);
 
 void IJSON_(_stream_find)(struct IJSON_(_stream) *stream, size_t idx,
-    struct IJSON_(_stream_node) *out_node, size_t *out_idx);
+        struct IJSON_(_stream_node) **out_node, size_t *out_idx);
 
 int IJSON_(_stream_append)(struct IJSON_(_stream) *stream,
-    size_t length, char *data);
+        size_t length, const char const *data);
 
+char *IJSON_(_stream_substr)(struct IJSON_(_stream) *stream,
+        size_t start, size_t end);
+
+void IJSON_(_stream_rel)(struct IJSON_(_stream) *stream);
+void IJSON_(_stream_free)(struct IJSON_(_stream) *stream);
 
 enum IJSON_(type) {
     IJSON_VALUE_NULL,

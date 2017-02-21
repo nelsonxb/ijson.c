@@ -1,6 +1,6 @@
 
 test: ijson.so ijson.h
-	luajit test.lua
+	luajit runtests.lua
 .PHONY: test
 
 

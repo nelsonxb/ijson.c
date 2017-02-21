@@ -1,5 +1,5 @@
 
 all: test
 .PHONY: all test
-test: ijson.c ijson.h
+test:
 	$(MAKE) -C tests test

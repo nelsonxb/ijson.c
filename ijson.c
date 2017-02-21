@@ -159,7 +159,7 @@ char *IJSON_(_stream_substr)(struct IJSON_(_stream) *stream,
     return data;
 }
 
-void IJSON_(_stream_rel)(struct IJSON_(_stream) *stream)
+void IJSON_(_stream_release)(struct IJSON_(_stream) *stream)
 {
     struct IJSON_(_stream_node) *node, *next;
     node = stream->first;
@@ -171,7 +171,7 @@ void IJSON_(_stream_rel)(struct IJSON_(_stream) *stream)
     }
 }
 void IJSON_(_stream_free)(struct IJSON_(_stream) *stream)
-{ IJSON_(_stream_rel)(stream); free(stream); }
+{ IJSON_(_stream_release)(stream); free(stream); }
 
 
 void IJSON_(doc_init)(IJSON_(document) *doc, size_t block_size)

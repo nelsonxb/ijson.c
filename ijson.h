@@ -69,7 +69,7 @@ int IJSON_(_stream_append)(struct IJSON_(_stream) *stream,
 char *IJSON_(_stream_substr)(struct IJSON_(_stream) *stream,
         size_t start, size_t end);
 
-void IJSON_(_stream_rel)(struct IJSON_(_stream) *stream);
+void IJSON_(_stream_release)(struct IJSON_(_stream) *stream);
 void IJSON_(_stream_free)(struct IJSON_(_stream) *stream);
 
 enum IJSON_(type) {

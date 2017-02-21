@@ -5,8 +5,10 @@ test: ijson.so ijson.h
 
 
 ijson.h: ../ijson.h
-	$(CC) -o $@ -E $^
+	$(CC) -E $^ | grep -v '^#' >$@
 
 ijson.so: ijson.o
+	$(CC) -shared $(LDFLAGS) -o $@ $^ $(LOADLIBES) $(LDLIBS)
 ijson.o: ../ijson.c ../ijson.h
+	$(CC) -fPIC $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 

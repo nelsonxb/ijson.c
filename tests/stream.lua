@@ -1,11 +1,6 @@
 local ffi = require('ffi')
 local C = ffi.C
 local lib = ffi.ijson
-ffi.cdef [[
-int strncmp(const char *s1, const char *s2, size_t n);
-void *malloc(size_t size);
-void free(void *ptr);
-]]
 
 c('stream', function()
     c('initalizer', function()
@@ -146,6 +141,16 @@ c('stream', function()
     end)
 
     c('flatten', function()
+        t('returns empty string', function()
+            local stream = ffi.gc(lib.ijson__stream_new(4),
+                                  lib.ijson__stream_free)
+            local actual = lib.ijson__stream_substr(stream,
+                                                  0, stream.stream_length)
+            ffi.gc(actual, C.free)
+            actual = ffi.string(actual, stream.stream_length)
+            assert.n.eq('actual string', actual, '')
+        end)
+
         t('returns correct full string', function()
             local stream = ffi.gc(lib.ijson__stream_new(4),
                                   lib.ijson__stream_free)

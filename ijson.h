@@ -115,6 +115,8 @@ typedef struct IJSON_(pair) {
 enum IJSON_(status) {
     IJSON_OK,
     IJSON_ERROR,
+    IJSON_EOF,
+    IJSON_UNEXPECTED
 };
 
 typedef struct IJSON_(state) {
@@ -123,8 +125,8 @@ typedef struct IJSON_(state) {
 
     struct {
         struct IJSON_(state) *parent;
-        size_t data_len, pos;
-        char *data;
+        struct IJSON_(_stream_node) *data_node;
+        size_t data_size, data_pos;
         int line, col;
     } _info;
 } IJSON_(state);

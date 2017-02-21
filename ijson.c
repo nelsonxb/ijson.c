@@ -201,7 +201,133 @@ void IJSON_(doc_release)(IJSON_(document) *doc)
 }
 
 
+static IJSON_(state) *_state_push(IJSON_(state) *parent, int replace)
+{
+    IJSON_(state) *state = (IJSON_(state) *) malloc(sizeof(IJSON_(state)));
+    state->status = IJSON_OK;
+    state->token = NULL;
+
+    state->_info = parent->_info;
+    if (replace) {
+        _state_release(parent);
+        free(parent);
+    } else {
+        state->_info.parent = parent;
+    }
+
+    return state;
+}
+
+static IJSON_(state) *_state_pop(IJSON_(state) *state)
+{
+    IJSON_(state) *next = state->_info.parent;
+    _state_release(state);
+    free(state);
+    return next;
+}
+
 static void _state_release(IJSON_(state) *state)
 {
-    // TODO
+    free(state->token);
+}
+
+static int _parse_ch(IJSON_(state) *state)
+{
+    if (state->_info.data_pos >= state->_info.data_size) {
+        return -1;
+    }
+
+    char c = state->_info.data_node->data[state->_info.data_pos++];
+    if (c == '\n') {
+        state->_info.line += 1;
+        state->_info.col = 0;
+    } else {
+        state->_info.col += 1;
+    }
+
+    if (state->_info.data_pos >= state->_info.data_size
+            && state->_info.data_node->next) {
+        state->_info.data_node = state->_info.data_node->next;
+    }
+
+    return c;
+}
+
+IJSON_(state) *IJSON_(start)(IJSON_(document) *doc)
+{
+    doc->root_state = (IJSON_(state) *) malloc(sizeof(IJSON_(state)));
+
+    IJSON_(state) *state = doc->root_state;
+    state->status = IJSON_OK;
+    state->token = NULL;
+
+    state->_info.parent = NULL;
+    state->_info.data_node = doc->data.first;
+    state->_info.data_size = doc->data.node_length;
+
+    state->_info.data_pos = 0;
+    state->_info.line = 0;
+    state->_info.col = 0;
+
+    return IJSON_(step)(_state_push(state, 0));
+}
+
+IJSON_(state) *IJSON_(step)(IJSON_(state) *state)
+{
+    int c = _parse_ch(state);
+    switch (c) {
+    case -1:
+        state = _state_push(state, 0);
+        state->status = IJSON_EOF;
+        return state;
+    case 'n':
+        state = _state_push(state, 1);
+        state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(value)));
+        state->token->type = IJSON_VALUE_NULL;
+        if (
+                _parse_ch(state) == 'u' &&
+                _parse_ch(state) == 'l' &&
+                _parse_ch(state) == 'l'
+           ) {
+            state->status = IJSON_OK;
+        } else {
+            state->status = IJSON_UNEXPECTED;
+        }
+        return state;
+    case 't':
+        state = _state_push(state, 1);
+        state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(int)));
+        state->token->type = IJSON_VALUE_BOOLEAN;
+        ((IJSON_(int) *) state->token)->data = 1;
+        if (
+                _parse_ch(state) == 'r' &&
+                _parse_ch(state) == 'u' &&
+                _parse_ch(state) == 'e'
+           ) {
+            state->status = IJSON_OK;
+        } else {
+            state->status = IJSON_UNEXPECTED;
+        }
+        return state;
+    case 'f':
+        state = _state_push(state, 1);
+        state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(int)));
+        state->token->type = IJSON_VALUE_BOOLEAN;
+        ((IJSON_(int) *) state->token)->data = 0;
+        if (
+                _parse_ch(state) == 'a' &&
+                _parse_ch(state) == 'l' &&
+                _parse_ch(state) == 's' &&
+                _parse_ch(state) == 'e'
+           ) {
+            state->status = IJSON_OK;
+        } else {
+            state->status = IJSON_UNEXPECTED;
+        }
+        return state;
+    default:
+        state = _state_push(state, 0);
+        state->status = IJSON_UNEXPECTED;
+        return state;
+    }
 }

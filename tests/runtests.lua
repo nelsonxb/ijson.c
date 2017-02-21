@@ -12,6 +12,7 @@ local microtest = require('microtest')
 
 microtest.require('stream')
 microtest.require('document')
+microtest.require('parse')
 
 microtest.run()
 microtest.report()

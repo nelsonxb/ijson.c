@@ -176,7 +176,8 @@ void IJSON_(_stream_free)(struct IJSON_(_stream) *stream)
 
 void IJSON_(doc_init)(IJSON_(document) *doc, size_t block_size)
 {
-    // TODO
+    doc->root_state = NULL;
+    IJSON_(_stream_init)(&doc->data, block_size);
 }
 
 void IJSON_(doc_data)(IJSON_(document) *doc, size_t length, const char *data)

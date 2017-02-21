@@ -274,7 +274,11 @@ IJSON_(state) *IJSON_(start)(IJSON_(document) *doc)
 
 IJSON_(state) *IJSON_(step)(IJSON_(state) *state)
 {
-    int c = _parse_ch(state);
+    int c;
+    do {
+        c = _parse_ch(state);
+    } while (c == ' ' || c == '\n' || c == '\t' || c == '\r');
+
     switch (c) {
     case -1:
         state = _state_push(state, 0);

@@ -174,6 +174,9 @@ void IJSON_(_stream_free)(struct IJSON_(_stream) *stream)
 { IJSON_(_stream_release)(stream); free(stream); }
 
 
+static void _state_release(IJSON_(state) *state);
+
+
 void IJSON_(doc_init)(IJSON_(document) *doc, size_t block_size)
 {
     doc->root_state = NULL;
@@ -186,6 +189,16 @@ void IJSON_(doc_data)(IJSON_(document) *doc, size_t length, const char *data)
 }
 
 void IJSON_(doc_release)(IJSON_(document) *doc)
+{
+    IJSON_(_stream_release)(&doc->data);
+    if (doc->root_state) {
+        _state_release(doc->root_state);
+        free(doc->root_state);
+    }
+}
+
+
+static void _state_release(IJSON_(state) *state)
 {
     // TODO
 }

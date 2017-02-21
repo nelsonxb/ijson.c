@@ -182,7 +182,7 @@ void IJSON_(doc_init)(IJSON_(document) *doc, size_t block_size)
 
 void IJSON_(doc_data)(IJSON_(document) *doc, size_t length, const char *data)
 {
-    // TODO
+    IJSON_(_stream_append)(&doc->data, length, data);
 }
 
 void IJSON_(doc_release)(IJSON_(document) *doc)

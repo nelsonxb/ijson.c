@@ -131,13 +131,14 @@ typedef struct IJSON_(state) {
 
 
 typedef struct IJSON_(document) {
-  struct IJSON_(_stream) doc_body;
+  struct IJSON_(_stream) data;
   IJSON_(state) *root_state;
 } IJSON_(document);
 
 
-void IJSON_(doc_init)(IJSON_(document) *doc);
-void IJSON_(doc_data)(IJSON_(document) *doc, size_t length, char *data);
+void IJSON_(doc_init)(IJSON_(document) *doc, size_t block_size);
+void IJSON_(doc_data)(IJSON_(document) *doc, size_t length, const char *data);
+void IJSON_(doc_release)(IJSON_(document) *doc);
 
 IJSON_(state) *IJSON_(start)(IJSON_(document) *doc);
 IJSON_(state) *IJSON_(step)(IJSON_(state) *state);

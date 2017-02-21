@@ -172,3 +172,19 @@ void IJSON_(_stream_rel)(struct IJSON_(_stream) *stream)
 }
 void IJSON_(_stream_free)(struct IJSON_(_stream) *stream)
 { IJSON_(_stream_rel)(stream); free(stream); }
+
+
+void IJSON_(doc_init)(IJSON_(document) *doc, size_t block_size)
+{
+    // TODO
+}
+
+void IJSON_(doc_data)(IJSON_(document) *doc, size_t length, const char *data)
+{
+    // TODO
+}
+
+void IJSON_(doc_release)(IJSON_(document) *doc)
+{
+    // TODO
+}

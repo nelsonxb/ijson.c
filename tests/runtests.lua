@@ -11,5 +11,7 @@ ffi.ijson = ffi.load('./ijson.so')
 local microtest = require('microtest')
 
 microtest.require('stream')
+microtest.require('document')
+
 microtest.run()
 microtest.report()

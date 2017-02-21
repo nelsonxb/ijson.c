@@ -126,8 +126,11 @@ int IJSON_(_stream_append)(struct IJSON_(_stream) *stream,
 }
 
 char *IJSON_(_stream_substr)(struct IJSON_(_stream) *stream,
-        size_t start, size_t end)
+        int start, int end)
 {
+    if (start < 0) start = stream->stream_length + start + 1;
+    if (end < 0) end = stream->stream_length + end + 1;
+
     size_t nodelen = stream->node_length;
     char *data = malloc(sizeof(char) * (end - start));
 

@@ -27,7 +27,7 @@ c('document', function()
 
             assert.n.eq('stream length', doc.data.stream_length, #data)
 
-            local actual = lib.ijson__stream_substr(doc.data, 0, doc.data.stream_length)
+            local actual = lib.ijson__stream_substr(doc.data, 0, -1)
             ffi.gc(actual, C.free)
             actual = ffi.string(actual, doc.data.stream_length)
             assert.n.eq('stream content', actual, data)
@@ -47,7 +47,7 @@ c('document', function()
 
             assert.n.eq('stream length after', doc.data.stream_length, #fulldata)
 
-            local actual = lib.ijson__stream_substr(doc.data, 0, doc.data.stream_length)
+            local actual = lib.ijson__stream_substr(doc.data, 0, -1)
             ffi.gc(actual, C.free)
             actual = ffi.string(actual, doc.data.stream_length)
             assert.n.eq('final stream content', actual, fulldata)

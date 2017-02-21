@@ -67,7 +67,7 @@ int IJSON_(_stream_append)(struct IJSON_(_stream) *stream,
         size_t length, const char const *data);
 
 char *IJSON_(_stream_substr)(struct IJSON_(_stream) *stream,
-        size_t start, size_t end);
+        int start, int end);
 
 void IJSON_(_stream_release)(struct IJSON_(_stream) *stream);
 void IJSON_(_stream_free)(struct IJSON_(_stream) *stream);

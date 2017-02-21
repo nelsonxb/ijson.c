@@ -174,10 +174,26 @@ c('stream', function()
             assert.n.eq('substring', sub, 'ar baz')
         end)
 
-        t.skip('returns correct full string (negative end)', function()
+        t('returns correct full string (negative end)', function()
+            local stream = ffi.gc(lib.ijson__stream_new(4),
+                                  lib.ijson__stream_free)
+            lib.ijson__stream_append(stream, 16, 'foo bar baz qux ')
+
+            local full = lib.ijson__stream_substr(stream, 0, -1)
+            ffi.gc(full, C.free)
+            full = ffi.string(full, 16)
+            assert.n.eq('full string', full, 'foo bar baz qux ')
         end)
 
-        t.skip('returns correct substring (negative start/end)', function()
+        t('returns correct substring (negative start/end)', function()
+            local stream = ffi.gc(lib.ijson__stream_new(4),
+                                  lib.ijson__stream_free)
+            lib.ijson__stream_append(stream, 16, 'foo bar baz qux ')
+
+            local sub = lib.ijson__stream_substr(stream, -12, -6)
+            ffi.gc(sub, C.free)
+            sub = ffi.string(sub, 6)
+            assert.n.eq('substring', sub, 'ar baz')
         end)
     end)
 end)

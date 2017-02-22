@@ -1,0 +1,2 @@
+# Prevent GitHub from marking this project as Lua
+tests/*.lua	linguist-documentation

@@ -23,25 +23,24 @@ struct {
 ijson_document doc;
 ijson_doc_init(&doc);
 ijson_state *state = ijson_start(&doc);
-if (state->type != IJSON_VALUE_OBJECT) {
+if (state->token->info.type != IJSON_VALUE_OBJECT) {
     // some error code
 }
 
 for (; state; state = ijson_step(state)) {
-    if (state->type == IJSON_ERROR) {
-        ijson_err *err = (ijson_err *) state;
+    if (state->status) {
         // some error code
     }
 
-    if (state->type != IJSON_PAIR) {
+    if (state->token->info.type != IJSON_PAIR) {
         // some error code
     }
 
-    ijson_pair *pair = (ijson_pair *) state;
-    if (pair->value->type != IJSON_VALUE_STRING) {
+    ijson_pair *pair = &state->token->pair;
+    if (pair->value->info.type != IJSON_VALUE_STRING) {
         // some error code
     }
-    ijson_string *s = (ijson_string *) pair->value;
+    ijson_string *s = &pair->value->string;
     if (strcmp(pair->key.data, "name") == 0) {
         message.name = s->data;
     } else if (strcmp(pair->key.data, "greeting") == 0) {

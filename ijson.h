@@ -83,33 +83,43 @@ enum IJSON_(type) {
     IJSON_PAIR,
 };
 
-#define IJSON_STRUCT_VALUE \
-    enum IJSON_(type) type
-typedef struct IJSON_(value) {
-    IJSON_STRUCT_VALUE;
-} IJSON_(value);
+union IJSON_(value);
 
-typedef struct IJSON_(int) {
-    IJSON_STRUCT_VALUE;
+struct IJSON_(value_info) {
+    enum IJSON_(type) type;
+};
+
+typedef struct IJSON_(value_info) IJSON_(any);
+
+typedef struct IJSON_(integer) {
+    struct IJSON_(value_info) info;
     int data;
-} IJSON_(int);
+} IJSON_(integer);
 
-typedef struct IJSON_(double) {
-    IJSON_STRUCT_VALUE;
+typedef struct IJSON_(number) {
+    struct IJSON_(value_info) info;
     double data;
-} IJSON_(double);
+} IJSON_(number);
 
 typedef struct IJSON_(string) {
-    IJSON_STRUCT_VALUE;
+    struct IJSON_(value_info) info;
     size_t length;
     char *data;
 } IJSON_(string);
 
 typedef struct IJSON_(pair) {
-    IJSON_STRUCT_VALUE;
+    struct IJSON_(value_info) info;
     IJSON_(string) key;
-    IJSON_(value) *value;
+    union IJSON_(value) *value;
 } IJSON_(pair);
+
+typedef union IJSON_(value) {
+    struct IJSON_(value_info) info;
+    IJSON_(integer) integer;
+    IJSON_(number) number;
+    IJSON_(string) string;
+    IJSON_(pair) pair;
+} IJSON_(value);
 
 
 enum IJSON_(status) {
@@ -133,8 +143,8 @@ typedef struct IJSON_(state) {
 
 
 typedef struct IJSON_(document) {
-  struct IJSON_(_stream) data;
-  IJSON_(state) *root_state;
+    struct IJSON_(_stream) data;
+    IJSON_(state) *root_state;
 } IJSON_(document);
 
 

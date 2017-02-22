@@ -286,8 +286,8 @@ IJSON_(state) *IJSON_(step)(IJSON_(state) *state)
         return state;
     case 'n':
         state = _state_push(state, 1);
-        state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(value)));
-        state->token->type = IJSON_VALUE_NULL;
+        state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(any)));
+        state->token->info.type = IJSON_VALUE_NULL;
         if (
                 _parse_ch(state) == 'u' &&
                 _parse_ch(state) == 'l' &&
@@ -300,9 +300,9 @@ IJSON_(state) *IJSON_(step)(IJSON_(state) *state)
         return state;
     case 't':
         state = _state_push(state, 1);
-        state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(int)));
-        state->token->type = IJSON_VALUE_BOOLEAN;
-        ((IJSON_(int) *) state->token)->data = 1;
+        state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(integer)));
+        state->token->info.type = IJSON_VALUE_BOOLEAN;
+        state->token->integer.data = 1;
         if (
                 _parse_ch(state) == 'r' &&
                 _parse_ch(state) == 'u' &&
@@ -315,9 +315,9 @@ IJSON_(state) *IJSON_(step)(IJSON_(state) *state)
         return state;
     case 'f':
         state = _state_push(state, 1);
-        state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(int)));
-        state->token->type = IJSON_VALUE_BOOLEAN;
-        ((IJSON_(int) *) state->token)->data = 0;
+        state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(integer)));
+        state->token->info.type = IJSON_VALUE_BOOLEAN;
+        state->token->integer.data = 0;
         if (
                 _parse_ch(state) == 'a' &&
                 _parse_ch(state) == 'l' &&

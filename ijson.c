@@ -231,28 +231,6 @@ static void _state_release(IJSON_(state) *state)
     free(state->token);
 }
 
-static int _parse_ch(IJSON_(state) *state)
-{
-    if (state->_info.data_pos >= state->_info.data_size) {
-        return -1;
-    }
-
-    char c = state->_info.data_node->data[state->_info.data_pos++];
-    if (c == '\n') {
-        state->_info.line += 1;
-        state->_info.col = 0;
-    } else {
-        state->_info.col += 1;
-    }
-
-    if (state->_info.data_pos >= state->_info.data_size
-            && state->_info.data_node->next) {
-        state->_info.data_node = state->_info.data_node->next;
-    }
-
-    return c;
-}
-
 IJSON_(state) *IJSON_(start)(IJSON_(document) *doc)
 {
     doc->root_state = (IJSON_(state) *) malloc(sizeof(IJSON_(state)));
@@ -272,12 +250,18 @@ IJSON_(state) *IJSON_(start)(IJSON_(document) *doc)
     return IJSON_(step)(_state_push(state, 0));
 }
 
+static int _parse_peek(IJSON_(state) *state);
+static int _parse_ch(IJSON_(state) *state);
+static _Bool _parse_is_ws(int c);
+static _Bool _parse_is_term(int c);
+static void _parse_kw(IJSON_(state) *state, const char *rest);
+
 IJSON_(state) *IJSON_(step)(IJSON_(state) *state)
 {
     int c;
     do {
         c = _parse_ch(state);
-    } while (c == ' ' || c == '\n' || c == '\t' || c == '\r');
+    } while (_parse_is_ws(c));
 
     switch (c) {
     case -1:
@@ -288,50 +272,86 @@ IJSON_(state) *IJSON_(step)(IJSON_(state) *state)
         state = _state_push(state, 1);
         state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(any)));
         state->token->info.type = IJSON_VALUE_NULL;
-        if (
-                _parse_ch(state) == 'u' &&
-                _parse_ch(state) == 'l' &&
-                _parse_ch(state) == 'l'
-           ) {
-            state->status = IJSON_OK;
-        } else {
-            state->status = IJSON_UNEXPECTED;
-        }
+        _parse_kw(state, "ull");
         return state;
     case 't':
         state = _state_push(state, 1);
         state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(integer)));
         state->token->info.type = IJSON_VALUE_BOOLEAN;
         state->token->integer.data = 1;
-        if (
-                _parse_ch(state) == 'r' &&
-                _parse_ch(state) == 'u' &&
-                _parse_ch(state) == 'e'
-           ) {
-            state->status = IJSON_OK;
-        } else {
-            state->status = IJSON_UNEXPECTED;
-        }
+        _parse_kw(state, "rue");
         return state;
     case 'f':
         state = _state_push(state, 1);
         state->token = (IJSON_(value) *) malloc(sizeof(IJSON_(integer)));
         state->token->info.type = IJSON_VALUE_BOOLEAN;
         state->token->integer.data = 0;
-        if (
-                _parse_ch(state) == 'a' &&
-                _parse_ch(state) == 'l' &&
-                _parse_ch(state) == 's' &&
-                _parse_ch(state) == 'e'
-           ) {
-            state->status = IJSON_OK;
-        } else {
-            state->status = IJSON_UNEXPECTED;
-        }
+        _parse_kw(state, "alse");
         return state;
     default:
         state = _state_push(state, 0);
         state->status = IJSON_UNEXPECTED;
         return state;
+    }
+}
+
+static int _parse_peek(IJSON_(state) *state)
+{
+    if (state->_info.data_pos >= state->_info.data_size
+            || state->_info.data_pos >= state->_info.data_node->clength) {
+        return -1;
+    }
+
+    return state->_info.data_node->data[state->_info.data_pos];
+}
+
+static int _parse_ch(IJSON_(state) *state)
+{
+    int c = _parse_peek(state);
+    state->_info.data_pos += 1;
+    if (c == '\n') {
+        state->_info.line += 1;
+        state->_info.col = 0;
+    } else {
+        state->_info.col += 1;
+    }
+
+    if (state->_info.data_pos >= state->_info.data_size
+            && state->_info.data_node->next) {
+        state->_info.data_node = state->_info.data_node->next;
+        state->_info.data_pos = 0;
+    }
+
+    return c;
+}
+
+static _Bool _parse_is_ws(int c)
+{
+    return c == ' ' || c == '\t'
+        || c == '\n' || c == '\r';
+}
+
+static _Bool _parse_is_term(int c)
+{
+    return c == -1 || _parse_is_ws(c)
+        || c == ':' || c == ','
+        || c == ']' || c == '}';
+}
+
+static void _parse_kw(IJSON_(state) *state, const char *rest)
+{
+    char c;
+    for (int i = 0; c = rest[i]; i += 1) {
+        if (_parse_ch(state) != c) {
+            state->status = IJSON_UNEXPECTED;
+            return;
+        }
+    }
+
+    if (_parse_is_term(_parse_peek(state))) {
+        state->status = IJSON_OK;
+    } else {
+        _parse_ch(state);
+        state->status = IJSON_UNEXPECTED;
     }
 }

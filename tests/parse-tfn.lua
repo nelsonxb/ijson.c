@@ -29,6 +29,19 @@ c('bool and null', function()
         assert.n.eq('token type', state.token.info.type, 'IJSON_VALUE_NULL')
     end)
 
+    t('enthusiastic null gives error', function()
+        local doc = ffi.gc(ffi.new('struct ijson_document'),
+                           lib.ijson_doc_release)
+        lib.ijson_doc_init(doc, 8)
+        lib.ijson_doc_data(doc, 5, 'nulll')
+
+        local state = lib.ijson_start(doc)
+        assert(state ~= nil, 'state should not be NULL')
+        assert.n.eq('status', state.status, 'IJSON_UNEXPECTED')
+        assert(state.token ~= nil, 'token should not be NULL')
+        assert.n.eq('token type', state.token.info.type, 'IJSON_VALUE_NULL')
+    end)
+
     t('true parses correctly', function()
         local doc = ffi.gc(ffi.new('struct ijson_document'),
                            lib.ijson_doc_release)
@@ -57,6 +70,20 @@ c('bool and null', function()
         assert.n.ne('boolean value', state.token.integer.data, 0)
     end)
 
+    t('enthusiastic true gives error', function()
+        local doc = ffi.gc(ffi.new('struct ijson_document'),
+                           lib.ijson_doc_release)
+        lib.ijson_doc_init(doc, 8)
+        lib.ijson_doc_data(doc, 5, 'truer')
+
+        local state = lib.ijson_start(doc)
+        assert(state ~= nil, 'state should not be NULL')
+        assert.n.eq('status', state.status, 'IJSON_UNEXPECTED')
+        assert(state.token ~= nil, 'token should not be NULL')
+        assert.n.eq('token type', state.token.info.type, 'IJSON_VALUE_BOOLEAN')
+        assert.n.ne('boolean value', state.token.integer.data, 0)
+    end)
+
     t('false parses correctly', function()
         local doc = ffi.gc(ffi.new('struct ijson_document'),
                            lib.ijson_doc_release)
@@ -76,6 +103,20 @@ c('bool and null', function()
                            lib.ijson_doc_release)
         lib.ijson_doc_init(doc, 8)
         lib.ijson_doc_data(doc, 4, 'fase')
+
+        local state = lib.ijson_start(doc)
+        assert(state ~= nil, 'state should not be NULL')
+        assert.n.eq('status', state.status, 'IJSON_UNEXPECTED')
+        assert(state.token ~= nil, 'token should not be NULL')
+        assert.n.eq('token type', state.token.info.type, 'IJSON_VALUE_BOOLEAN')
+        assert.n.eq('boolean value', state.token.integer.data, 0)
+    end)
+
+    t('enthusiastic false gives error', function()
+        local doc = ffi.gc(ffi.new('struct ijson_document'),
+                           lib.ijson_doc_release)
+        lib.ijson_doc_init(doc, 8)
+        lib.ijson_doc_data(doc, 6, 'falsey')
 
         local state = lib.ijson_start(doc)
         assert(state ~= nil, 'state should not be NULL')
